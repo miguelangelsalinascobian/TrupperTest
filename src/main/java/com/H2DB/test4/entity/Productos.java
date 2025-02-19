@@ -1,6 +1,6 @@
 package com.H2DB.test4.entity;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,28 +16,29 @@ import jakarta.persistence.Table;
 public class Productos {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "producto_id")
-	private int productoId;
+	private Integer productoId;
 	
 	@ManyToOne
-	@JoinColumn(name = "orden_id")
+	@JoinColumn(name = "orden_id", nullable = false)
+	@JsonIgnore
 	private Ordenes ordenId;
 	
-	@Column(name = "codigo")
+	@Column(name = "codigo", nullable = false , length = 20)
 	private String codigo;
 	
-	@Column(name = "descripcion")
+	@Column(name = "descripcion", nullable = false , length = 200)
 	private String descripcion;
 	
-	@Column(name = "decimal")
-	private double decimal;
+	@Column(name = "precio", nullable = false)
+	private Double precio;
 
-	public int getProductoId() {
+	public Integer getProductoId() {
 		return productoId;
 	}
 
-	public void setProductoId(int productoId) {
+	public void setProductoId(Integer productoId) {
 		this.productoId = productoId;
 	}
 
@@ -65,15 +66,19 @@ public class Productos {
 		this.descripcion = descripcion;
 	}
 
-	public double getDecimal() {
-		return decimal;
+	public Double getPrecio() {
+		return precio;
 	}
 
-	public void setDecimal(double decimal) {
-		this.decimal = decimal;
+	public void setPrecio(Double precio) {
+		this.precio = precio;
 	}
-	
 
+	@Override
+	public String toString() {
+		return "Productos [productoId=" + productoId + ", ordenId=" + ordenId + ", codigo=" + codigo + ", descripcion="
+				+ descripcion + ", precio=" + precio + "]";
+	}
 	
 	
 }

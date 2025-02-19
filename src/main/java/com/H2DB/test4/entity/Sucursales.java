@@ -8,20 +8,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "SUCURSALES")
+@Table(name = "sucursales")
 public class Sucursales {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "sucursal_id")
-	private Long sucursalId;
-	@Column(name = "nombre")
+	private Integer sucursalId;
+	@Column(name = "nombre", length = 50, nullable = false)
 	private String nombre;
 	
-	public Long getSucursalId() {
+	public Integer getSucursalId() {
 		return sucursalId;
 	}
-	public void setSucursalId(Long sucursalId) {
+	public void setSucursalId(Integer sucursalId) {
 		this.sucursalId = sucursalId;
 	}
 	public String getNombre() {
@@ -29,6 +29,10 @@ public class Sucursales {
 	}
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+	@Override
+	public String toString() {
+		return "Sucursales [sucursalId=" + sucursalId + ", nombre=" + nombre + "]";
 	}
 	
 	

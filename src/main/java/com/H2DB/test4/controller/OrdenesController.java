@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.H2DB.test4.dto.OrdenesDto;
+import com.H2DB.test4.dto.ProductoDto;
 import com.H2DB.test4.entity.Ordenes;
-import com.H2DB.test4.entity.OrdenesDto;
-import com.H2DB.test4.entity.Sucursales;
 import com.H2DB.test4.service.OrdenesServiceImpl;
-import com.H2DB.test4.service.SucursalServiceImpl;
 
 @RestController
 @RequestMapping("/ordenes/*")
@@ -26,33 +25,40 @@ public class OrdenesController {
 	@Autowired
 	private OrdenesServiceImpl ordenesServiceImpl;
 	
-	@Autowired
-	private SucursalServiceImpl sucursalesServiceImpl;
-
-	
 	@GetMapping("{id}")
-	public ResponseEntity<Ordenes> getById(@PathVariable int id){		
-		Optional<Ordenes> ordenesOptional = ordenesServiceImpl.findById(id);
-		return ResponseEntity.ok(ordenesOptional.orElseThrow());
+	public ResponseEntity<Ordenes> getById(@PathVariable Integer id){		
+		Optional<Ordenes> ordenesOptional = ordenesServiceImpl.getById(id);
+		if(ordenesOptional.isPresent()) {
+			return ResponseEntity.ok(ordenesOptional.orElseThrow());
+		}
+		return ResponseEntity.notFound().build();
 	}
 	
 	@PostMapping
-	public ResponseEntity<Ordenes> save(@RequestBody Ordenes item){		
-		return ResponseEntity.status(HttpStatus.CREATED).body(ordenesServiceImpl.save(item));
+	public ResponseEntity<?> create(@RequestBody OrdenesDto item){		
+		StringBuilder errorMessage = new StringBuilder();
+		
+		if(item.getSucursalId() == null) {
+			errorMessage.append("La sucursal no puede ser nula");
+		}
+		if(item.getProductos().isEmpty()) {
+			errorMessage.append("La lista de productos no puede ser nula");
+		}
+		
+		if(errorMessage.length() > 0) {
+			return ResponseEntity.badRequest().body(errorMessage.toString());
+		}else {
+			return ResponseEntity.status(HttpStatus.CREATED).body(ordenesServiceImpl.save(item));	
+		}
 	}
 	
-	@PutMapping("{id}")
-	public ResponseEntity<Ordenes> update(@RequestBody OrdenesDto item, @PathVariable int id){
-		Optional<Ordenes> ordenesOptional = ordenesServiceImpl.findById(id);
-		if(ordenesOptional.isPresent()) {
-			Ordenes ordenesDb =  ordenesOptional.orElseThrow();
-			ordenesDb.setOrdenId(item.getOrdenId());
-			Optional<Sucursales> sucursalesOptional = sucursalesServiceImpl.findById(item.getSucursalId());
-			ordenesDb.setSucursalId(sucursalesOptional.orElseThrow());
-			ordenesDb.setFecha(item.getFecha());
-			ordenesDb.setTotal(item.getTotal());
-			return ResponseEntity.status(HttpStatus.CREATED).body(ordenesServiceImpl.save(ordenesDb));
+	@PutMapping("/productos/{codigo}/precio/")
+	public ResponseEntity<?> actualizarPrecio(@RequestBody ProductoDto item, @PathVariable String codigo){
+		if(item.getPrecio() == null) {
+			StringBuilder errorMessage = new StringBuilder();
+			errorMessage.append("El precio no puede ser nulo");
+			return ResponseEntity.badRequest().body(errorMessage.toString());
 		}
-		return null;
+		return ResponseEntity.status(HttpStatus.CREATED).body(ordenesServiceImpl.actualizarPrecioProducto(codigo, item.getPrecio()));
 	}
 }
